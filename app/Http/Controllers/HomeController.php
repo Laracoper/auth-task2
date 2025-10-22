@@ -7,16 +7,28 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // $users = User::with('tasks')->distinct('name')->get();
+        $count = Task::count('id');
+        // $user = Auth::user();
+
+        $userstask = DB::table('users')
+            ->join('tasks', 'users.id', '=', 'tasks.user_id')
+            ->select('users.*', 'tasks.*')
+            ->get();
+        dump($userstask);
+        // $tasks = User::find($user->id)->tasks; //belongsTo
+
+        // dump($tasks);
+ 
         $users = User::with('tasks')->get();
         // $users = User::all();
         // dd($users);
-        return view('index', compact('users'));
+        return view('index', compact('users', ['userstask','count']));
     }
     public function home()
     {
@@ -30,7 +42,7 @@ class HomeController extends Controller
         $char = $this->char();
         // dd($char);
         // $usertaskname = $task->user->name;
-        return view('secret', compact(['user', ['tasks','count','char']]));
+        return view('secret', compact(['user', ['tasks', 'count', 'char']]));
     }
 
     private $character;
